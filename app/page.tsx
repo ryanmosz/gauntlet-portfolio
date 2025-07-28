@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Github, Linkedin, FileText, ExternalLink, Play, Pause } from "lucide-react"
 
-// Interactive background component inspired by The Fountain's fluid dynamics
+// Interactive background component - Universe with fluid dynamics stars
 const InteractiveBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animationRef = useRef<number>()
@@ -22,6 +22,18 @@ const InteractiveBackground = () => {
       size: number
       color: { r: number; g: number; b: number }
       trail: Array<{ x: number; y: number; alpha: number }>
+    }>
+  >([])
+  const planetsRef = useRef<
+    Array<{
+      x: number
+      y: number
+      orbitRadius: number
+      orbitSpeed: number
+      orbitAngle: number
+      orbitCenter: { x: number; y: number }
+      size: number
+      color: { r: number; g: number; b: number }
     }>
   >([])
 
@@ -40,42 +52,77 @@ const InteractiveBackground = () => {
     resizeCanvas()
     window.addEventListener("resize", resizeCanvas)
 
-    // Initialize particles across the screen
+    // Initialize stars (particles) across the screen
     const initParticles = () => {
       particlesRef.current = []
-      for (let i = 0; i < 150; i++) {
-        const colors = [
-          { r: 59, g: 130, b: 246 }, // blue
-          { r: 139, g: 92, b: 246 }, // purple
-          { r: 6, g: 182, b: 212 }, // cyan
-          { r: 16, g: 185, b: 129 }, // emerald
-          { r: 245, g: 158, b: 11 }, // amber
-          { r: 236, g: 72, b: 153 }, // pink
+      for (let i = 0; i < 200; i++) {
+        // Mostly white/pale stars with occasional colored ones
+        const isColoredStar = Math.random() < 0.15
+        const colors = isColoredStar ? [
+          { r: 255, g: 200, b: 150 }, // warm white
+          { r: 150, g: 180, b: 255 }, // cool blue
+          { r: 255, g: 180, b: 180 }, // reddish
+          { r: 200, g: 255, b: 200 }, // greenish
+        ] : [
+          { r: 255, g: 255, b: 255 }, // pure white
+          { r: 240, g: 240, b: 255 }, // bluish white
+          { r: 255, g: 250, b: 240 }, // warm white
         ]
 
         particlesRef.current.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.5,
-          vy: (Math.random() - 0.5) * 0.5,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
           life: Math.random() * 200 + 100,
           maxLife: Math.random() * 200 + 100,
-          size: Math.random() * 1 + 0.5, // Changed from * 3 + 1 to much smaller
+          size: Math.random() * 1.5 + 0.3, // Smaller star sizes
           color: colors[Math.floor(Math.random() * colors.length)],
           trail: [],
         })
       }
     }
 
+    // Initialize planets
+    const initPlanets = () => {
+      planetsRef.current = []
+      
+      // Planet in top-right corner area
+      planetsRef.current.push({
+        x: canvas.width * 0.85,
+        y: canvas.height * 0.15,
+        orbitRadius: 80,
+        orbitSpeed: 0.003,
+        orbitAngle: Math.random() * Math.PI * 2,
+        orbitCenter: { x: canvas.width * 0.85, y: canvas.height * 0.15 },
+        size: 12,
+        color: { r: 100, g: 150, b: 255 }, // Earth-like blue
+      })
+
+      // Planet in bottom-left corner area
+      planetsRef.current.push({
+        x: canvas.width * 0.15,
+        y: canvas.height * 0.85,
+        orbitRadius: 100,
+        orbitSpeed: -0.002,
+        orbitAngle: Math.random() * Math.PI * 2,
+        orbitCenter: { x: canvas.width * 0.15, y: canvas.height * 0.85 },
+        size: 8,
+        color: { r: 255, g: 150, b: 100 }, // Mars-like red
+      })
+    }
+
     initParticles()
+    initPlanets()
 
     const handleMouseMove = (e: MouseEvent) => {
       mouseRef.current = { x: e.clientX, y: e.clientY }
     }
 
     const animate = () => {
-      // Create trailing effect
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      // Create space background with slight trail effect
+      ctx.fillStyle = 'rgba(0, 0, 5, 0.15)'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
 
       const mouse = mouseRef.current
 
@@ -86,26 +133,25 @@ const InteractiveBackground = () => {
         const distance = Math.sqrt(dx * dx + dy * dy)
         const maxDistance = 300 // Increased from 200
 
-        // Mouse influence (attraction/repulsion) - ENHANCED REACTIVITY
+        // Mouse influence (attraction/repulsion) - SUBTLE EFFECT
         if (distance < maxDistance) {
           const force = (maxDistance - distance) / maxDistance
           const angle = Math.atan2(dy, dx)
 
-          // Increased force multipliers for more dramatic response
-          // Create flowing effect - particles flow around mouse
+          // Subtle flowing effect - particles gently flow around mouse
           const flowAngle = angle + Math.PI / 2
-          particle.vx += Math.cos(flowAngle) * force * 0.08 // Increased from 0.02
-          particle.vy += Math.sin(flowAngle) * force * 0.08 // Increased from 0.02
+          particle.vx += Math.cos(flowAngle) * force * 0.02 // Reduced for subtlety
+          particle.vy += Math.sin(flowAngle) * force * 0.02 // Reduced for subtlety
 
-          // Add stronger attraction to create more pronounced swirling
-          particle.vx += Math.cos(angle) * force * 0.03 // Increased from 0.005
-          particle.vy += Math.sin(angle) * force * 0.03 // Increased from 0.005
+          // Gentle attraction for slight swirling
+          particle.vx += Math.cos(angle) * force * 0.008 // Reduced for subtlety
+          particle.vy += Math.sin(angle) * force * 0.008 // Reduced for subtlety
 
-          // Add repulsion effect when very close to mouse
+          // Soft repulsion when very close
           if (distance < 50) {
             const repulsionForce = (50 - distance) / 50
-            particle.vx -= Math.cos(angle) * repulsionForce * 0.1
-            particle.vy -= Math.sin(angle) * repulsionForce * 0.1
+            particle.vx -= Math.cos(angle) * repulsionForce * 0.03 // Reduced for subtlety
+            particle.vy -= Math.sin(angle) * repulsionForce * 0.03 // Reduced for subtlety
           }
         }
 
@@ -116,8 +162,8 @@ const InteractiveBackground = () => {
         // Apply velocity with damping
         particle.x += particle.vx
         particle.y += particle.vy
-        particle.vx *= 0.99 // Changed from 0.995 for less damping
-        particle.vy *= 0.99 // Changed from 0.995 for less damping
+        particle.vx *= 0.96 // Increased damping for quicker settling
+        particle.vy *= 0.96 // Increased damping for quicker settling
 
         // Wrap around screen edges
         if (particle.x < 0) particle.x = canvas.width
@@ -125,33 +171,35 @@ const InteractiveBackground = () => {
         if (particle.y < 0) particle.y = canvas.height
         if (particle.y > canvas.height) particle.y = 0
 
-        // Draw main particle with glow effect
+        // Draw star with twinkling effect
         const lifeRatio = particle.life / particle.maxLife
-        const alpha = Math.sin(lifeRatio * Math.PI) * 0.8
+        const twinkle = Math.sin(lifeRatio * Math.PI * 4) * 0.3 + 0.7
+        const alpha = twinkle
 
-        // Outer glow
+        // Star glow
         const gradient = ctx.createRadialGradient(
           particle.x,
           particle.y,
           0,
           particle.x,
           particle.y,
-          particle.size * 2.0,
-        ) // Changed from * 3 to * 1.5
+          particle.size * 3,
+        )
         gradient.addColorStop(0, `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${alpha})`)
+        gradient.addColorStop(0.5, `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, ${alpha * 0.3})`)
         gradient.addColorStop(1, `rgba(${particle.color.r}, ${particle.color.g}, ${particle.color.b}, 0)`)
 
-        ctx.globalAlpha = 1
+        ctx.globalAlpha = alpha * 0.8
         ctx.fillStyle = gradient
         ctx.beginPath()
-        ctx.arc(particle.x, particle.y, particle.size * 2.0, 0, Math.PI * 2) // Changed from * 3 to * 1.5
+        ctx.arc(particle.x, particle.y, particle.size * 3, 0, Math.PI * 2)
         ctx.fill()
 
-        // Inner bright core
+        // Star core
         ctx.globalAlpha = alpha
-        ctx.fillStyle = `rgba(${particle.color.r + 50}, ${particle.color.g + 50}, ${particle.color.b + 50}, ${alpha})`
+        ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`
         ctx.beginPath()
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2)
+        ctx.arc(particle.x, particle.y, particle.size * 0.5, 0, Math.PI * 2)
         ctx.fill()
 
         // Age the particle
@@ -168,8 +216,8 @@ const InteractiveBackground = () => {
         }
       })
 
-      // Draw connections between nearby particles (nebula effect)
-      ctx.globalAlpha = 0.1
+      // Draw connections between nearby particles (constellation effect)
+      ctx.globalAlpha = 0.05
       for (let i = 0; i < particlesRef.current.length; i++) {
         for (let j = i + 1; j < particlesRef.current.length; j++) {
           const p1 = particlesRef.current[i]
@@ -178,11 +226,11 @@ const InteractiveBackground = () => {
           const dy = p1.y - p2.y
           const distance = Math.sqrt(dx * dx + dy * dy)
 
-          if (distance < 100) {
-            const alpha = ((100 - distance) / 100) * 0.2
+          if (distance < 80) {
+            const alpha = ((80 - distance) / 80) * 0.1
             ctx.globalAlpha = alpha
-            ctx.strokeStyle = `rgba(${(p1.color.r + p2.color.r) / 2}, ${(p1.color.g + p2.color.g) / 2}, ${(p1.color.b + p2.color.b) / 2}, ${alpha})`
-            ctx.lineWidth = 0.5
+            ctx.strokeStyle = `rgba(200, 200, 255, ${alpha})`
+            ctx.lineWidth = 0.3
             ctx.beginPath()
             ctx.moveTo(p1.x, p1.y)
             ctx.lineTo(p2.x, p2.y)
@@ -190,6 +238,57 @@ const InteractiveBackground = () => {
           }
         }
       }
+
+      // Draw planets
+      planetsRef.current.forEach((planet) => {
+        // Update planet position
+        planet.orbitAngle += planet.orbitSpeed
+        planet.x = planet.orbitCenter.x + Math.cos(planet.orbitAngle) * planet.orbitRadius
+        planet.y = planet.orbitCenter.y + Math.sin(planet.orbitAngle) * planet.orbitRadius
+
+        // Draw faint orbital path
+        ctx.globalAlpha = 0.05
+        ctx.strokeStyle = `rgba(${planet.color.r}, ${planet.color.g}, ${planet.color.b}, 0.1)`
+        ctx.lineWidth = 1
+        ctx.setLineDash([5, 10])
+        ctx.beginPath()
+        ctx.arc(planet.orbitCenter.x, planet.orbitCenter.y, planet.orbitRadius, 0, Math.PI * 2)
+        ctx.stroke()
+        ctx.setLineDash([])
+
+        // Draw planet glow
+        const gradient = ctx.createRadialGradient(
+          planet.x,
+          planet.y,
+          0,
+          planet.x,
+          planet.y,
+          planet.size * 2
+        )
+        gradient.addColorStop(0, `rgba(${planet.color.r}, ${planet.color.g}, ${planet.color.b}, 0.8)`)
+        gradient.addColorStop(0.7, `rgba(${planet.color.r}, ${planet.color.g}, ${planet.color.b}, 0.3)`)
+        gradient.addColorStop(1, `rgba(${planet.color.r}, ${planet.color.g}, ${planet.color.b}, 0)`)
+
+        ctx.globalAlpha = 0.9
+        ctx.fillStyle = gradient
+        ctx.beginPath()
+        ctx.arc(planet.x, planet.y, planet.size * 2, 0, Math.PI * 2)
+        ctx.fill()
+
+        // Draw planet body
+        ctx.globalAlpha = 1
+        ctx.fillStyle = `rgb(${planet.color.r}, ${planet.color.g}, ${planet.color.b})`
+        ctx.beginPath()
+        ctx.arc(planet.x, planet.y, planet.size, 0, Math.PI * 2)
+        ctx.fill()
+
+        // Add subtle surface detail
+        ctx.globalAlpha = 0.3
+        ctx.fillStyle = `rgba(${planet.color.r * 0.7}, ${planet.color.g * 0.7}, ${planet.color.b * 0.7}, 0.5)`
+        ctx.beginPath()
+        ctx.arc(planet.x - planet.size * 0.3, planet.y - planet.size * 0.3, planet.size * 0.4, 0, Math.PI * 2)
+        ctx.fill()
+      })
 
       ctx.globalAlpha = 1
       animationRef.current = requestAnimationFrame(animate)
@@ -207,7 +306,7 @@ const InteractiveBackground = () => {
     }
   }, [])
 
-  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" style={{ background: "#000000" }} />
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0" style={{ background: "#000005" }} />
 }
 
 // Video player component
@@ -319,8 +418,8 @@ export default function Portfolio() {
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-gray-300">Full Stack Developer & Creative Problem Solver</p>
             <p className="text-lg mb-12 text-gray-400 max-w-2xl mx-auto">
-              Passionate about building innovative web applications that solve real-world problems. Click anywhere on
-              the background to see some magic! ✨
+              Passionate about building innovative web applications that solve real-world problems. Move your cursor to
+              see the stars dance around you! ⭐
             </p>
             <div className="flex gap-4 justify-center">
               <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
