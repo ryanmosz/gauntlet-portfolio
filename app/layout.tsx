@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "RMM G2 Portfolio",
   description: "Ryan Moszynski's Gauntlet 2 Portfolio",
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({
