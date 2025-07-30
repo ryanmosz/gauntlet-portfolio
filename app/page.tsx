@@ -450,7 +450,7 @@ Real-time Alerts
       description:
         "CaseThread is an AI-powered legal document generation system that creates professional intellectual property documents featuring multi-agent AI workflows, PDF generation, real-time preview, and vector database context retrieval.",
       techStack: ["Node.js", "TypeScript", "React", "Electron", "AI"],
-      videoSrc: "/placeholder-video.mp4",
+      videoSrc: "",
       githubUrl: "https://github.com/ryanmosz/CaseThread",
       techDetails: `Backend Technologies
 • Node.js ^20.0.0 - Runtime environment
@@ -765,12 +765,15 @@ Integration Points
   }, [projects])
 
   const scrollToSection = (sectionId: string) => {
-    setActiveSection(sectionId)
     const element = document.getElementById(sectionId)
     if (element) {
-      element.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
+      // Get header height offset for better positioning
+      const yOffset = -20 // Small offset from top
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
+      
+      window.scrollTo({ 
+        top: y,
+        behavior: 'smooth'
       })
     }
   }
@@ -995,6 +998,18 @@ Integration Points
                           allowFullScreen
                           className="absolute top-0 left-0 w-full h-full"
                         ></iframe>
+                      ) : project.videoSrc === "" ? (
+                        <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-gray-900">
+                          <div className="text-center">
+                            <div className="mb-4">
+                              <svg className="w-16 h-16 mx-auto text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                              </svg>
+                            </div>
+                            <h3 className="text-xl font-semibold text-white mb-2">Video Coming Soon</h3>
+                            <p className="text-gray-400">This demo is currently under construction</p>
+                          </div>
+                        </div>
                       ) : (
                         <div className="absolute top-0 left-0 w-full h-full">
                           <VideoPlayer src={project.videoSrc} title={project.title} />
