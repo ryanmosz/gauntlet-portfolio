@@ -767,10 +767,12 @@ Integration Points
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId)
     if (element) {
-      // Get header height offset for better positioning
-      const yOffset = -20 // Small offset from top
+      // For project sections, scroll so video is at top of viewport
+      const isProjectSection = sectionId !== 'welcome'
+      const yOffset = isProjectSection ? -48 : 0 // Adjust for project padding
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
       
+      // Use native smooth scrolling
       window.scrollTo({ 
         top: y,
         behavior: 'smooth'
@@ -984,7 +986,7 @@ Integration Points
 
         {/* Project Sections */}
         {projects.map((project) => (
-          <section key={project.id} id={project.id} className="min-h-screen px-8 py-12">
+          <section key={project.id} id={project.id} className="min-h-screen px-8 pt-20 pb-12">
             <div className="max-w-7xl w-full mx-auto">
               {/* Video Container - With proper aspect ratio */}
               <div className="mb-8">
