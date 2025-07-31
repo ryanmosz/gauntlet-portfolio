@@ -765,18 +765,35 @@ Integration Points
   }, [projects])
 
   const scrollToSection = (sectionId: string) => {
+    setActiveSection(sectionId)
     const element = document.getElementById(sectionId)
     if (element) {
-      // For project sections, scroll so video is at top of viewport
-      const isProjectSection = sectionId !== 'welcome'
-      const yOffset = isProjectSection ? -48 : 0 // Adjust for project padding
-      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
+      // Get the exact position of the element
+      const elementPosition = element.offsetTop
+      const startPosition = window.pageYOffset
+      const distance = elementPosition - startPosition
+      const duration = 800 // milliseconds for medium speed
+      let start: number | null = null
       
-      // Use native smooth scrolling
-      window.scrollTo({ 
-        top: y,
-        behavior: 'smooth'
-      })
+      // Easing function for smooth animation
+      const easeInOutCubic = (t: number): number => {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+      }
+      
+      const animation = (currentTime: number) => {
+        if (start === null) start = currentTime
+        const timeElapsed = currentTime - start
+        const progress = Math.min(timeElapsed / duration, 1)
+        
+        const ease = easeInOutCubic(progress)
+        window.scrollTo(0, startPosition + distance * ease)
+        
+        if (timeElapsed < duration) {
+          requestAnimationFrame(animation)
+        }
+      }
+      
+      requestAnimationFrame(animation)
     }
   }
 
@@ -986,7 +1003,7 @@ Integration Points
 
         {/* Project Sections */}
         {projects.map((project) => (
-          <section key={project.id} id={project.id} className="min-h-screen px-8 pt-20 pb-12">
+          <section key={project.id} id={project.id} className="min-h-screen px-8 py-12">
             <div className="max-w-7xl w-full mx-auto">
               {/* Video Container - With proper aspect ratio */}
               <div className="mb-8">
@@ -1077,7 +1094,7 @@ Integration Points
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-4xl font-bold mb-8 text-white">Let&apos;s Connect</h2>
             <p className="text-xl text-gray-300 mb-12">
-              Ready to collaborate on your next project? Let&apos;s build something amazing together!
+              Ready to collaborate on your next project? Let&apos;s build something amazing together! {/* t0 */}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <button
