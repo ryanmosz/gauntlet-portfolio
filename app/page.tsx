@@ -351,6 +351,7 @@ export default function Portfolio() {
   const [modalContent, setModalContent] = useState<{ type: string; content: string; title: string } | null>(null)
   const [showContactOptions, setShowContactOptions] = useState(false)
   const [emailCopied, setEmailCopied] = useState(false)
+  const [showScrollTests, setShowScrollTests] = useState(false)
 
   const projects = useMemo(() => [
     {
@@ -764,37 +765,127 @@ Integration Points
     return () => window.removeEventListener("scroll", handleScroll)
   }, [projects])
 
-  const scrollToSection = (sectionId: string) => {
-    setActiveSection(sectionId)
+  // Scroll method 1: Manual animation with requestAnimationFrame
+  const manualScroll = (sectionId: string) => {
     const element = document.getElementById(sectionId)
     if (element) {
-      // Get the exact position of the element
-      const elementPosition = element.offsetTop
+      const buffer = 40
+      const targetPosition = element.getBoundingClientRect().top + window.pageYOffset + buffer
       const startPosition = window.pageYOffset
-      const distance = elementPosition - startPosition
-      const duration = 800 // milliseconds for medium speed
-      let start: number | null = null
+      const distance = targetPosition - startPosition
+      const duration = 1000
+      const startTime = performance.now()
       
-      // Easing function for smooth animation
-      const easeInOutCubic = (t: number): number => {
-        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
-      }
-      
-      const animation = (currentTime: number) => {
-        if (start === null) start = currentTime
-        const timeElapsed = currentTime - start
-        const progress = Math.min(timeElapsed / duration, 1)
+      const animateScroll = (currentTime: number) => {
+        const elapsed = currentTime - startTime
+        const progress = Math.min(elapsed / duration, 1)
+        const easeProgress = progress < 0.5 
+          ? 2 * progress * progress 
+          : -1 + (4 - 2 * progress) * progress
         
-        const ease = easeInOutCubic(progress)
-        window.scrollTo(0, startPosition + distance * ease)
+        window.scrollTo(0, startPosition + distance * easeProgress)
         
-        if (timeElapsed < duration) {
-          requestAnimationFrame(animation)
+        if (progress < 1) {
+          requestAnimationFrame(animateScroll)
         }
       }
       
-      requestAnimationFrame(animation)
+      requestAnimationFrame(animateScroll)
     }
+  }
+
+  // Scroll method 2: Polyfill-style smooth scroll
+  const tailwindSmoothV1 = (sectionId: string) => {
+    const element = document.getElementById(sectionId)
+    if (element) {
+      const buffer = 40
+      const targetPosition = element.getBoundingClientRect().top + window.pageYOffset + buffer
+      const startPosition = window.pageYOffset
+      const distance = targetPosition - startPosition
+      
+      // Check if native smooth scroll is actually working
+      const testScroll = () => {
+        const before = window.pageYOffset
+        window.scrollBy({ top: 1, behavior: 'smooth' })
+        const after = window.pageYOffset
+        window.scrollBy({ top: -1, behavior: 'instant' })
+        return before === after // If true, smooth scroll is async and working
+      }
+      
+      // If native smooth scroll works, use it
+      if ('scrollBehavior' in document.documentElement.style && testScroll()) {
+        document.documentElement.style.scrollBehavior = 'smooth'
+        window.scrollTo({
+          top: targetPosition,
+          behavior: 'smooth'
+        })
+        setTimeout(() => {
+          document.documentElement.style.scrollBehavior = ''
+        }, 1000)
+      } else {
+        // Fallback to manual animation
+        const duration = 500
+        const start = performance.now()
+        
+        const scroll = (now: number) => {
+          const elapsed = now - start
+          const progress = Math.min(elapsed / duration, 1)
+          
+          // CSS-style easing
+          const easeInOutQuad = progress < 0.5
+            ? 2 * progress * progress
+            : 1 - Math.pow(-2 * progress + 2, 2) / 2
+          
+          window.scrollTo(0, startPosition + distance * easeInOutQuad)
+          
+          if (progress < 1) {
+            requestAnimationFrame(scroll)
+          }
+        }
+        
+        requestAnimationFrame(scroll)
+      }
+    }
+  }
+
+  // Scroll method 3: Spring physics animation (20% slower)
+  const springScroll = (sectionId: string) => {
+    const element = document.getElementById(sectionId)
+    if (element) {
+      const buffer = 40
+      const targetPosition = element.getBoundingClientRect().top + window.pageYOffset + buffer
+      const startPosition = window.pageYOffset
+      
+      // Spring physics parameters (reduced by 20% for slower motion)
+      const stiffness = 0.08  // was 0.1, now 20% less
+      const damping = 0.8     // keeping damping the same for smoothness
+      let velocity = 0
+      let currentPosition = startPosition
+      
+      const animate = () => {
+        const distance = targetPosition - currentPosition
+        const acceleration = distance * stiffness
+        velocity = (velocity + acceleration) * damping
+        currentPosition += velocity
+        
+        window.scrollTo(0, currentPosition)
+        
+        // Continue until close enough
+        if (Math.abs(distance) > 0.5 || Math.abs(velocity) > 0.5) {
+          requestAnimationFrame(animate)
+        } else {
+          window.scrollTo(0, targetPosition)
+        }
+      }
+      
+      requestAnimationFrame(animate)
+    }
+  }
+
+  // Default scroll method for navigation
+  const scrollToSection = (sectionId: string) => {
+    setActiveSection(sectionId)
+    manualScroll(sectionId) // Using manual scroll as default
   }
 
   const openModal = (type: string, content: string, title: string) => {
@@ -1094,7 +1185,7 @@ Integration Points
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-4xl font-bold mb-8 text-white">Let&apos;s Connect</h2>
             <p className="text-xl text-gray-300 mb-12">
-              Ready to collaborate on your next project? Let&apos;s build something amazing together! {/* t0 */}
+              Ready to collaborate on your next project? Let&apos;s build something amazing together! t8
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <button
@@ -1135,6 +1226,48 @@ Integration Points
                       onClick={() => window.open('https://x.com/Ryan26295', '_blank')}
                     >
                       <span className="font-bold text-xl">𝕏</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+              <div className="relative">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="bg-gray-900/90 border-gray-700 text-gray-400 hover:bg-gray-800/80 hover:text-white"
+                  onClick={() => setShowScrollTests(!showScrollTests)}
+                >
+                  Test Scrolling
+                </Button>
+                {showScrollTests && (
+                  <div className="absolute top-full mt-2 left-1/2 transform -translate-x-1/2 flex flex-col gap-2 animate-in fade-in slide-in-from-top-2 duration-200 bg-gray-900/95 border border-gray-700 rounded-lg p-4">
+                    <div className="text-sm text-gray-400 mb-2">Click to test scroll methods:</div>
+                    <button
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all bg-gray-800/90 border border-gray-700 text-gray-300 hover:bg-gray-700/80 hover:text-white whitespace-nowrap"
+                      onClick={() => {
+                        manualScroll('welcome')
+                        setTimeout(() => manualScroll('wordwise'), 2000)
+                      }}
+                    >
+                      Manual Scroll
+                    </button>
+                    <button
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all bg-gray-800/90 border border-gray-700 text-gray-300 hover:bg-gray-700/80 hover:text-white whitespace-nowrap"
+                      onClick={() => {
+                        tailwindSmoothV1('welcome')
+                        setTimeout(() => tailwindSmoothV1('wordwise'), 2000)
+                      }}
+                    >
+                      Polyfill Smooth
+                    </button>
+                    <button
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all bg-gray-800/90 border border-gray-700 text-gray-300 hover:bg-gray-700/80 hover:text-white whitespace-nowrap"
+                      onClick={() => {
+                        springScroll('welcome')
+                        setTimeout(() => springScroll('wordwise'), 2000)
+                      }}
+                    >
+                      Spring Physics
                     </button>
                   </div>
                 )}
