@@ -450,7 +450,7 @@ Real-time Alerts
       description:
         "CaseThread is an AI-powered legal document generation system that creates professional intellectual property documents featuring multi-agent AI workflows, PDF generation, real-time preview, and vector database context retrieval.",
       techStack: ["Node.js", "TypeScript", "React", "Electron", "AI"],
-      videoSrc: "",
+      videoSrc: "https://www.youtube.com/embed/RefpKN6bAnQ",
       githubUrl: "https://github.com/ryanmosz/CaseThread",
       techDetails: `Backend Technologies
 • Node.js ^20.0.0 - Runtime environment
@@ -764,36 +764,7 @@ Integration Points
     return () => window.removeEventListener("scroll", handleScroll)
   }, [projects])
 
-  // Scroll method 1: Manual animation with requestAnimationFrame
-  const manualScroll = (sectionId: string) => {
-    const element = document.getElementById(sectionId)
-    if (element) {
-      const buffer = 40
-      const targetPosition = element.getBoundingClientRect().top + window.pageYOffset + buffer
-      const startPosition = window.pageYOffset
-      const distance = targetPosition - startPosition
-      const duration = 1000
-      const startTime = performance.now()
-      
-      const animateScroll = (currentTime: number) => {
-        const elapsed = currentTime - startTime
-        const progress = Math.min(elapsed / duration, 1)
-        const easeProgress = progress < 0.5 
-          ? 2 * progress * progress 
-          : -1 + (4 - 2 * progress) * progress
-        
-        window.scrollTo(0, startPosition + distance * easeProgress)
-        
-        if (progress < 1) {
-          requestAnimationFrame(animateScroll)
-        }
-      }
-      
-      requestAnimationFrame(animateScroll)
-    }
-  }
-
-  // Scroll method 2: Polyfill-style smooth scroll
+  // Smooth scroll implementation
   const tailwindSmoothV1 = (sectionId: string) => {
     const element = document.getElementById(sectionId)
     if (element) {
@@ -823,40 +794,6 @@ Integration Points
       }
       
       requestAnimationFrame(scroll)
-    }
-  }
-
-  // Scroll method 3: Spring physics animation (20% slower)
-  const springScroll = (sectionId: string) => {
-    const element = document.getElementById(sectionId)
-    if (element) {
-      const buffer = 40
-      const targetPosition = element.getBoundingClientRect().top + window.pageYOffset + buffer
-      const startPosition = window.pageYOffset
-      
-      // Spring physics parameters (reduced by 20% for slower motion)
-      const stiffness = 0.08  // was 0.1, now 20% less
-      const damping = 0.8     // keeping damping the same for smoothness
-      let velocity = 0
-      let currentPosition = startPosition
-      
-      const animate = () => {
-        const distance = targetPosition - currentPosition
-        const acceleration = distance * stiffness
-        velocity = (velocity + acceleration) * damping
-        currentPosition += velocity
-        
-        window.scrollTo(0, currentPosition)
-        
-        // Continue until close enough
-        if (Math.abs(distance) > 0.5 || Math.abs(velocity) > 0.5) {
-          requestAnimationFrame(animate)
-        } else {
-          window.scrollTo(0, targetPosition)
-        }
-      }
-      
-      requestAnimationFrame(animate)
     }
   }
 
