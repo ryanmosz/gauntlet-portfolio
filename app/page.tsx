@@ -1016,11 +1016,12 @@ Integration Points
                 <div className="mx-auto" style={{ maxWidth: '900px' }}>
                   <div className="rounded-lg overflow-hidden bg-gray-900/50 border border-gray-700">
                     <div className="relative w-full" style={{ paddingBottom: '56.25%' }}> {/* 16:9 aspect ratio */}
-                      {project.videoSrc.includes("loom.com") ? (
+                      {(project.videoSrc.includes("loom.com") || project.videoSrc.includes("youtube.com") || project.videoSrc.includes("youtu.be")) ? (
                         <iframe
                           src={project.videoSrc}
                           frameBorder="0"
                           allowFullScreen
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           className="absolute top-0 left-0 w-full h-full"
                         ></iframe>
                       ) : project.videoSrc === "" ? (
