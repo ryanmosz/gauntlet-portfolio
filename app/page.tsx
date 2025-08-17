@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from "react"
 import { Button } from "@/components/ui/button"
-import { Github, Monitor, Smartphone, Home, Code, Sparkles, X, Mail, Check, Play, Pause } from "lucide-react"
+import { Github, Monitor, Smartphone, Home, Code, Sparkles, X, Mail, Check, Play, Pause, FileText } from "lucide-react"
 import Image from "next/image"
 
 // Interactive background component - Universe with fluid dynamics stars
@@ -971,9 +971,19 @@ Integration Points
                   <p className="text-gray-300 text-lg mb-4">
                     With the help of AI, I can build anything we can imagine.
                   </p>                
-                  <p className="text-gray-300 text-lg">
+                  <p className="text-gray-300 text-lg mb-8">
                     I value effort, honesty, and good decision-making.
                   </p>
+                  <div className="flex justify-center">
+                    <a
+                      href="/Ryan-Moszynski-Resume.odt"
+                      download
+                      className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-md text-base font-medium bg-gray-900/90 border border-gray-700 text-gray-400 hover:bg-gray-800/80 hover:text-white active:bg-blue-600/20 active:text-white active:border-l-2 active:border-l-blue-400 transition-all"
+                    >
+                      <FileText className="w-5 h-5" />
+                      Download Resume
+                    </a>
+                  </div>
                 </div>
               </>
             ) : (
@@ -988,9 +998,19 @@ Integration Points
                     <p className="text-gray-300 text-lg mb-4">
                       With the help of AI, I can build anything we can imagine.
                     </p>                
-                    <p className="text-gray-300 text-lg">
+                    <p className="text-gray-300 text-lg mb-6">
                       I value effort, honesty, and good decision-making.
                     </p>
+                  </div>
+                  <div className="mt-6">
+                    <a
+                      href="/Ryan-Moszynski-Resume.odt"
+                      download
+                      className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-md text-base font-medium bg-gray-900/90 border border-gray-700 text-gray-400 hover:bg-gray-800/80 hover:text-white active:bg-blue-600/20 active:text-white active:border-l-2 active:border-l-blue-400 transition-all"
+                    >
+                      <FileText className="w-5 h-5" />
+                      Download Resume
+                    </a>
                   </div>
                 </div>
                 <div className="flex-shrink-0">
@@ -1104,6 +1124,14 @@ Integration Points
               Ready to collaborate on your next project? Let&apos;s build something amazing together!
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <a
+                href="/Ryan-Moszynski-Resume.odt"
+                download
+                className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-md text-base font-medium bg-gray-900/90 border border-gray-700 text-gray-400 hover:bg-gray-800/80 hover:text-white active:bg-blue-600/20 active:text-white active:border-l-2 active:border-l-blue-400 transition-all"
+              >
+                <FileText className="w-5 h-5" />
+                Resume
+              </a>
               <button
                 className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-md text-base font-medium bg-gray-900/90 border border-gray-700 text-gray-400 hover:bg-gray-800/80 hover:text-white active:bg-blue-600/20 active:text-white active:border-l-2 active:border-l-blue-400 transition-all"
                 onClick={() => window.open('https://github.com/ryanmosz', '_blank')}
